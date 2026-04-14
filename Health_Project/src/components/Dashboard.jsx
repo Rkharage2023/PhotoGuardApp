@@ -1,6 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { X, CheckCircle, Mail, PlayCircle } from "lucide-react";
+import cert1 from "../assets/certificate 1.jpg";
+import cert2 from "../assets/certificate 2.jpg";
+import cert3 from "../assets/certificate 3.jpg";
 
 const VideoCard = ({ title, embedSrc, description }) => (
   <div className="rounded-2xl overflow-hidden border border-gray-100 bg-white shadow-sm">
@@ -80,23 +83,44 @@ export default function Dashboard({ onClose, phoneNumber }) {
         </div>
 
         {/* Achievements */}
-        <div>
-          <h3 className="text-sm font-bold text-emerald-600 mb-3 uppercase tracking-wider">
-            Pharmacy Achievements
-          </h3>
-          <div className="space-y-3">
-            <AchievementCard
-              title="Clinical Certification"
-              content="Certified specialist in Dermatological Photodetection with advanced training in photosensitivity management."
-              Icon={CheckCircle}
-              color="text-emerald-500"
-            />
-            <AchievementCard
-              title="5000+ Consultations"
-              content="Successfully managed over five thousand patient cases involving sun-related skin reactions."
-              Icon={Mail}
-              color="text-blue-500"
-            />
+        <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+          <div className="flex items-start gap-3 mb-3">
+            <CheckCircle size={20} className="text-emerald-500 mt-0.5" />
+            <div>
+              <p className="font-semibold text-sm text-emerald-600">
+                Clinical Certification
+              </p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Certified specialist in Dermatological Photodetection with
+                advanced training.
+              </p>
+            </div>
+          </div>
+          {/* Certificate images grid */}
+          <div className="grid grid-cols-3 gap-2 mt-2">
+            {[cert1, cert2, cert3].map((src, i) => (
+              <div
+                key={i}
+                onClick={() => {
+                  const win = window.open();
+                  win.document.write(
+                    `<img src="${src}" style="max-width:100%;"/>`,
+                  );
+                }}
+                className="relative rounded-xl overflow-hidden cursor-pointer group"
+              >
+                <img
+                  src={src}
+                  alt={`Certificate ${i + 1}`}
+                  className="w-full h-20 object-cover border-2 border-gray-100 group-hover:border-violet-400 transition-colors"
+                />
+                <div className="absolute inset-0 bg-violet-600/0 group-hover:bg-violet-600/70 transition-all flex items-center justify-center">
+                  <span className="text-white text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                    View
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
