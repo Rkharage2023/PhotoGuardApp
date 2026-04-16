@@ -9,43 +9,69 @@ import QuestionnairePage from "./pages/QuestionnairePage";
 import ResultPage from "./pages/ResultPage";
 import VideosPage from "./pages/VideosPage";
 import DrugAllergyPage from "./pages/DrugAllergyPage";
+import { authAPI } from "./services/api";
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(
+    () => !sessionStorage.getItem("splashSeen"),
+  );
   const [page, setPage] = useState("login");
   const [activeTab, setActiveTab] = useState("home");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [userRole, setUserRole] = useState("user");
   const [quizAnswers, setQuizAnswers] = useState([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  /* ── Restore session on mount ── */
   useEffect(() => {
-    const savedPhone = localStorage.getItem("phone");
-    const savedRole = localStorage.getItem("userRole");
-    if (savedPhone) {
-      setPhoneNumber(savedPhone);
-      setUserRole(savedRole || "user");
-      setIsAuthenticated(true);
-      setPage("main");
+    const token = localStorage.getItem("token");
+    const phone = localStorage.getItem("phone");
+    const role = localStorage.getItem("userRole");
+
+    if (token && phone) {
+      authAPI
+        .getMe()
+        .then(() => {
+          setPhoneNumber(phone);
+          setUserRole(role || "user");
+          setIsAuth(true);
+          setPage("main");
+        })
+        .catch(() => {
+          // Token expired — clear everything
+          localStorage.clear();
+        })
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
   }, []);
 
-  const handleLogin = (phone, role) => {
+  const handleSplashDone = () => {
+    sessionStorage.setItem("splashSeen", "1");
+    setShowSplash(false);
+  };
+
+  const handleLogin = async (phone, role) => {
+    const data = await authAPI.login(phone, role);
+    localStorage.setItem("token", data.token);
     localStorage.setItem("phone", phone);
     localStorage.setItem("userRole", role);
     setPhoneNumber(phone);
     setUserRole(role);
-    setIsAuthenticated(true);
+    setIsAuth(true);
     setPage("main");
     setActiveTab("home");
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
     localStorage.removeItem("phone");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userProfile");
     localStorage.removeItem("profileCompleted");
-    setIsAuthenticated(false);
+    setIsAuth(false);
     setPhoneNumber("");
     setUserRole("user");
     setPage("login");
@@ -56,32 +82,33 @@ export default function App() {
     setPage("main");
   };
 
-  const navigateTo = (target) => {
-    if (target === "quiz") {
-      setPage("quiz");
-      return;
-    }
-    if (target === "result") {
-      setPage("result");
-      return;
-    }
-    if (target === "home") {
-      setPage("main");
-      setActiveTab("home");
-      return;
-    }
-    setPage("main");
-    setActiveTab(target);
-  };
+  /* ── Splash ── */
+  if (showSplash) return <SplashScreen onComplete={handleSplashDone} />;
 
-  if (showSplash) {
-    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  /* ── Initial loading spinner ── */
+  if (loading) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center
+                      bg-gradient-to-br from-violet-600 to-purple-700"
+      >
+        <div className="text-center">
+          <div
+            className="w-12 h-12 border-4 border-white/30 border-t-white
+                          rounded-full animate-spin mx-auto mb-4"
+          />
+          <p className="text-white/80 text-sm font-medium">
+            Loading PhotoGuard…
+          </p>
+        </div>
+      </div>
+    );
   }
 
-  if (!isAuthenticated) {
-    return <LoginPage onLogin={handleLogin} />;
-  }
+  /* ── Auth ── */
+  if (!isAuth) return <LoginPage onLogin={handleLogin} />;
 
+  /* ── Full-screen pages (no navbar) ── */
   if (page === "quiz") {
     return (
       <QuestionnairePage
@@ -112,7 +139,8 @@ export default function App() {
     );
   }
 
-  const renderPage = () => {
+  /* ── Main app with navbar ── */
+  const renderTab = () => {
     switch (activeTab) {
       case "home":
         return (
@@ -160,7 +188,9 @@ export default function App() {
         userRole={userRole}
       />
       <main className="pt-20">
-        <AnimatePresence mode="wait">{renderPage()}</AnimatePresence>
+        <AnimatePresence mode="wait">
+          <div key={activeTab}>{renderTab()}</div>
+        </AnimatePresence>
       </main>
     </div>
   );

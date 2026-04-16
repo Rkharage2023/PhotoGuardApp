@@ -7,7 +7,6 @@ import {
   Menu,
   Stethoscope,
   AlertTriangle,
-  X,
 } from "lucide-react";
 import Dashboard from "./Dashboard";
 
@@ -39,7 +38,10 @@ export default function Navbar({
               <Menu size={22} />
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+              <div
+                className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600
+                              flex items-center justify-center"
+              >
                 <Stethoscope size={16} className="text-white" />
               </div>
               <span className="font-bold text-gray-800 text-lg hidden sm:block">
@@ -48,20 +50,32 @@ export default function Navbar({
             </div>
           </div>
 
-          {/* Center: tabs */}
-          <div className="flex items-center gap-1 bg-gray-50 rounded-2xl p-1 border border-gray-100">
+          {/* Center: tabs — overflow-visible so active dot isn't clipped */}
+          <div
+            className="flex items-center gap-1 bg-gray-50 rounded-2xl p-1 border border-gray-100
+                          overflow-visible"
+          >
             {TABS.map(({ id, label, Icon }) => (
               <button
                 key={id}
                 onClick={() => onTabChange(id)}
-                className={`relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  activeTab === id
-                    ? "bg-white text-violet-600 shadow-sm"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-white/60"
-                }`}
+                className={`relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium
+                            transition-all duration-200 ${
+                              activeTab === id
+                                ? "bg-white text-violet-600 shadow-sm"
+                                : "text-gray-500 hover:text-gray-700 hover:bg-white/60"
+                            }`}
               >
                 <Icon size={16} />
                 <span className="hidden md:block">{label}</span>
+                {activeTab === id && (
+                  <motion.div
+                    layoutId="activeTabDot"
+                    className="absolute -bottom-2 left-1/2 -translate-x-1/2
+                               w-1.5 h-1.5 rounded-full bg-violet-500"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
               </button>
             ))}
           </div>

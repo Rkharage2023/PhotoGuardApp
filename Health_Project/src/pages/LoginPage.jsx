@@ -7,6 +7,7 @@ import {
   Pill,
   Stethoscope,
   Shield,
+  Loader,
 } from "lucide-react";
 
 const ROLES = [
@@ -33,24 +34,27 @@ const ROLES = [
   },
 ];
 
-const colorMap = {
+const C = {
   violet: {
     border: "border-violet-400",
     bg: "bg-violet-50",
     text: "text-violet-600",
-    ring: "ring-violet-300",
+    dot: "bg-violet-500",
+    ring: "ring-violet-200",
   },
   blue: {
     border: "border-blue-400",
     bg: "bg-blue-50",
     text: "text-blue-600",
-    ring: "ring-blue-300",
+    dot: "bg-blue-500",
+    ring: "ring-blue-200",
   },
   emerald: {
     border: "border-emerald-400",
     bg: "bg-emerald-50",
     text: "text-emerald-600",
-    ring: "ring-emerald-300",
+    dot: "bg-emerald-500",
+    ring: "ring-emerald-200",
   },
 };
 
@@ -58,24 +62,33 @@ export default function LoginPage({ onLogin }) {
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("user");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const digits = phone.replace(/\D/g, "");
     if (digits.length !== 10) {
       setError("Please enter a valid 10-digit phone number.");
       return;
     }
-    onLogin(digits, role);
+    setError("");
+    setLoading(true);
+    try {
+      await onLogin(digits, role);
+    } catch (err) {
+      setError(err.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 flex items-center justify-center p-4">
-      {/* Background decorations */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
-      </div>
+    <div
+      className="min-h-screen bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700
+                    flex items-center justify-center p-4 relative overflow-hidden"
+    >
+      <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -84,9 +97,11 @@ export default function LoginPage({ onLogin }) {
         className="w-full max-w-md relative z-10"
       >
         <div className="bg-white rounded-3xl shadow-2xl p-8">
-          {/* Logo */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-700 mb-4 shadow-lg">
+            <div
+              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl
+                            bg-gradient-to-br from-violet-500 to-purple-700 mb-4 shadow-lg"
+            >
               <Stethoscope size={32} className="text-white" />
             </div>
             <h1 className="text-2xl font-bold text-gray-800">
@@ -97,21 +112,21 @@ export default function LoginPage({ onLogin }) {
             </p>
           </div>
 
-          {/* Role Selection */}
           <div className="space-y-3 mb-6">
             {ROLES.map(({ id, label, Icon, desc, color }) => {
-              const c = colorMap[color];
+              const c = C[color];
               const selected = role === id;
               return (
                 <button
                   key={id}
                   type="button"
                   onClick={() => setRole(id)}
-                  className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all duration-200 ${
-                    selected
-                      ? `${c.border} ${c.bg} shadow-sm ring-4 ${c.ring}/20`
-                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                  }`}
+                  className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left
+                              transition-all duration-200 ${
+                                selected
+                                  ? `${c.border} ${c.bg} shadow-sm ring-4 ${c.ring}`
+                                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                              }`}
                 >
                   <div
                     className={`p-2 rounded-xl ${selected ? c.bg : "bg-gray-100"}`}
@@ -121,23 +136,22 @@ export default function LoginPage({ onLogin }) {
                       className={selected ? c.text : "text-gray-500"}
                     />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <p
                       className={`font-semibold text-sm ${selected ? c.text : "text-gray-700"}`}
                     >
                       {label}
                     </p>
-                    <p className="text-xs text-gray-400">{desc}</p>
+                    <p className="text-xs text-gray-400 truncate">{desc}</p>
                   </div>
                   {selected && (
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className={`w-5 h-5 rounded-full ${c.bg} border-2 ${c.border} flex items-center justify-center`}
+                      className={`w-5 h-5 rounded-full border-2 ${c.border} ${c.bg}
+                                  flex items-center justify-center flex-shrink-0`}
                     >
-                      <div
-                        className={`w-2 h-2 rounded-full bg-current ${c.text}`}
-                      />
+                      <div className={`w-2 h-2 rounded-full ${c.dot}`} />
                     </motion.div>
                   )}
                 </button>
@@ -145,7 +159,6 @@ export default function LoginPage({ onLogin }) {
             })}
           </div>
 
-          {/* Phone input */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -159,13 +172,14 @@ export default function LoginPage({ onLogin }) {
                 <input
                   type="tel"
                   value={phone}
+                  maxLength={10}
                   onChange={(e) => {
                     setPhone(e.target.value);
                     setError("");
                   }}
                   placeholder="e.g. 9876543210"
-                  maxLength={10}
-                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-2xl text-sm focus:outline-none focus:border-violet-400 transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-2xl text-sm
+                             focus:outline-none focus:border-violet-400 transition-colors"
                 />
               </div>
               {error && (
@@ -177,10 +191,24 @@ export default function LoginPage({ onLogin }) {
 
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-2xl font-semibold text-sm shadow-lg hover:shadow-violet-200 hover:-translate-y-0.5 transition-all duration-200"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-3.5
+                         bg-gradient-to-r from-violet-500 to-purple-600 text-white
+                         rounded-2xl font-semibold text-sm shadow-lg
+                         hover:shadow-violet-200 hover:-translate-y-0.5
+                         disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0
+                         transition-all duration-200"
             >
-              Login as {role.charAt(0).toUpperCase() + role.slice(1)}
-              <ChevronRight size={18} />
+              {loading ? (
+                <>
+                  <Loader size={16} className="animate-spin" /> Logging in…
+                </>
+              ) : (
+                <>
+                  Login as {role.charAt(0).toUpperCase() + role.slice(1)}{" "}
+                  <ChevronRight size={18} />
+                </>
+              )}
             </button>
           </form>
 
