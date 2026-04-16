@@ -1,5 +1,6 @@
 {
   "name": "photoguard-backend",
+  "type": "module",
   "version": "1.0.0",
   "description": "PhotoGuard REST API — Node.js + Express + MongoDB",
   "main": "server.js",
