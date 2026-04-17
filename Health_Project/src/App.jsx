@@ -25,6 +25,7 @@ export default function App() {
 
   /* ── Restore session on mount ── */
   useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/health`).catch(() => {});
     const token = localStorage.getItem("token");
     const phone = localStorage.getItem("phone");
     const role = localStorage.getItem("userRole");
