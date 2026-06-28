@@ -4,15 +4,6 @@ import { protect } from "../middleware/auth.js";
 
 const router = express.Router();
 
-function getStage(yesCount) {
-  if (yesCount <= 5)
-    return { stage: "mild", label: "Stage 1 — Mild Photosensitivity Risk" };
-  if (yesCount <= 10)
-    return { stage: "moderate", label: "Stage 2 — Moderate Photosensitivity" };
-  if (yesCount <= 13)
-    return { stage: "severe", label: "Stage 3 — Severe Photosensitivity" };
-  return { stage: "critical", label: "Stage 4 — Critical Photosensitivity" };
-}
 
 /**
  * POST /api/quiz/save
@@ -20,23 +11,28 @@ function getStage(yesCount) {
  */
 router.post("/save", protect, async (req, res) => {
   try {
-    const { answers } = req.body;
-    if (!Array.isArray(answers) || answers.length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Answers array is required" });
-    }
-
-    const yesCount = answers.filter(Boolean).length;
-    const { stage, label } = getStage(yesCount);
+    const {
+      part1Answers,
+      part2Answers,
+      part1Images,
+      part2Images,
+      probabilities,
+      yesCount,
+      stage,
+      stageLabel
+    } = req.body;
 
     const result = await QuizResult.create({
       user: req.user._id,
       phone: req.user.phone,
-      answers,
-      yesCount,
-      stage,
-      stageLabel: label,
+      part1Answers: part1Answers || [],
+      part2Answers: part2Answers || [],
+      part1Images: part1Images || [],
+      part2Images: part2Images || [],
+      probabilities: probabilities || [],
+      yesCount: yesCount || 0,
+      stage: stage || "mild",
+      stageLabel: stageLabel || "Stage 1 — Mild Photosensitivity Risk",
     });
 
     res.status(201).json({ success: true, result });

@@ -62,7 +62,7 @@ export default function VideosPage() {
   const [activeVideo, setActiveVideo] = useState(null);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-blue-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100/50 to-emerald-50/30 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -73,7 +73,7 @@ export default function VideosPage() {
             <h1 className="text-3xl font-extrabold text-gray-800 mb-2">
               Educational Videos
             </h1>
-            <p className="text-gray-500">
+            <p className="text-gray-400">
               Learn everything about skin care and photosensitivity treatment
             </p>
           </div>
@@ -98,7 +98,7 @@ export default function VideosPage() {
               >
                 {/* Thumbnail */}
                 <div
-                  className="relative aspect-video bg-gradient-to-br from-violet-500 to-purple-700
+                  className="relative aspect-video bg-gradient-to-br from-emerald-500 to-teal-600
                                 flex items-center justify-center"
                 >
                   {video.playable && video.src ? (

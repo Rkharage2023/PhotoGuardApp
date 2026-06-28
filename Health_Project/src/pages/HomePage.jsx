@@ -15,6 +15,7 @@ import {
   Phone,
 } from "lucide-react";
 import DoctorRegistration from "../components/DoctorRegistration";
+import ReminderCard from "../components/ReminderCard";
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -43,7 +44,6 @@ export default function HomePage({ userRole, phoneNumber, onStartQuiz }) {
   const [showDoctorReg, setShowDoctorReg] = useState(false);
   const [registeredDoctors, setRegisteredDoctors] = useState([]);
   const [carouselSlide, setCarouselSlide] = useState(0);
-  const [notifEnabled, setNotifEnabled] = useState(false);
 
   useEffect(() => {
     const docs = JSON.parse(localStorage.getItem("registeredDoctors") || "[]");
@@ -76,7 +76,7 @@ export default function HomePage({ userRole, phoneNumber, onStartQuiz }) {
   const slideIcon = carouselSlide === 0 ? "💊" : "👨‍⚕️";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100/50 to-emerald-50/30">
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         {/* Hero Section */}
         <motion.div
@@ -86,7 +86,7 @@ export default function HomePage({ userRole, phoneNumber, onStartQuiz }) {
         >
           <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-800 mb-4 leading-tight">
             Know The Root Cause Of Your{" "}
-            <span className="bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
               Skin Problems
             </span>
           </h1>
@@ -108,7 +108,7 @@ export default function HomePage({ userRole, phoneNumber, onStartQuiz }) {
           <motion.div
             {...fadeUp}
             transition={{ delay: 0.1 }}
-            className="bg-gradient-to-r from-violet-500 to-purple-600 rounded-3xl p-6 text-center"
+            className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-3xl p-6 text-center"
           >
             <motion.button
               onClick={() => setShowDoctorReg(true)}
@@ -132,7 +132,7 @@ export default function HomePage({ userRole, phoneNumber, onStartQuiz }) {
           <motion.div
             {...fadeUp}
             transition={{ delay: 0.15 }}
-            className="bg-gradient-to-br from-violet-600 to-purple-700 rounded-3xl p-6 relative overflow-hidden"
+            className="bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 rounded-3xl p-6 relative overflow-hidden"
           >
             <h2 className="text-xl font-bold text-white text-center mb-6">
               Our Healthcare Partners
@@ -260,32 +260,19 @@ export default function HomePage({ userRole, phoneNumber, onStartQuiz }) {
           </div>
         </motion.div>
 
-        {/* Notification Banner */}
+        {/* Symptom Check-in Reminder Card */}
         <motion.div
           {...fadeUp}
           transition={{ delay: 0.25 }}
-          className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 text-center"
         >
-          <div className="flex items-center justify-center gap-2 mb-4 text-gray-700 font-semibold">
-            <Bell size={18} /> Enable Notifications For Better Experience
-          </div>
-          <button
-            onClick={() => setNotifEnabled((n) => !n)}
-            className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${
-              notifEnabled
-                ? "bg-emerald-500 text-white hover:bg-emerald-600"
-                : "bg-blue-500 text-white hover:bg-blue-600"
-            }`}
-          >
-            {notifEnabled ? "✓ Notifications Enabled" : "Enable Notifications"}
-          </button>
+          <ReminderCard />
         </motion.div>
 
         {/* Chat Support */}
         <motion.div
           {...fadeUp}
           transition={{ delay: 0.3 }}
-          className="bg-gradient-to-r from-violet-500 to-purple-600 rounded-3xl p-6 text-center text-white"
+          className="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 rounded-3xl p-6 text-center text-white"
         >
           <h3 className="text-xl font-bold mb-2">HAVE QUESTIONS?</h3>
           <p className="text-white/80 mb-5">

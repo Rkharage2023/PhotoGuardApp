@@ -43,7 +43,7 @@ export default function Dashboard({ onClose, phoneNumber }) {
 
       <div className="flex-1 p-5 space-y-6">
         {/* Welcome banner */}
-        <div className="rounded-2xl bg-gradient-to-br from-violet-500 to-purple-700 p-5 text-white">
+        <div className="rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white">
           <p className="text-sm font-medium opacity-80 mb-1">Welcome back</p>
           <h3 className="text-2xl font-bold">PhotoGuard</h3>
           <p className="text-xs mt-2 opacity-70">
@@ -53,7 +53,7 @@ export default function Dashboard({ onClose, phoneNumber }) {
 
         {/* Primary Protection Video */}
         <div>
-          <h3 className="text-xs font-bold text-violet-600 mb-3 uppercase tracking-wider">
+          <h3 className="text-xs font-bold text-emerald-600 mb-3 uppercase tracking-wider">
             Primary Protection
           </h3>
           <div className="rounded-2xl overflow-hidden border border-gray-100 bg-white shadow-sm">
@@ -115,10 +115,10 @@ export default function Dashboard({ onClose, phoneNumber }) {
                       src={src}
                       alt={`Certificate ${i + 1}`}
                       className="w-full h-20 object-cover border-2 border-gray-100
-                                 group-hover:border-violet-400 transition-all duration-200"
+                                 group-hover:border-emerald-400 transition-all duration-200"
                     />
                     <div
-                      className="absolute inset-0 bg-violet-600/0 group-hover:bg-violet-600/75
+                      className="absolute inset-0 bg-emerald-600/0 group-hover:bg-emerald-600/75
                                     transition-all duration-200 flex items-center justify-center"
                     >
                       <span

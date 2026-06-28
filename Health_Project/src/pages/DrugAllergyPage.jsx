@@ -136,7 +136,7 @@ function Accordion({ title, children }) {
 
 export default function DrugAllergyPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-blue-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100/50 to-emerald-50/30 py-8 px-4">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <motion.div
@@ -150,7 +150,7 @@ export default function DrugAllergyPage() {
           <h1 className="text-3xl font-extrabold text-gray-800 mb-2">
             Food Drug Allergy
           </h1>
-          <p className="text-gray-500 max-w-xl mx-auto">
+          <p className="text-gray-400 max-w-xl mx-auto">
             Understanding food-drug interactions and allergies for better health
             management
           </p>
@@ -221,7 +221,7 @@ export default function DrugAllergyPage() {
           className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100"
         >
           <div className="flex items-center gap-2 mb-5">
-            <div className="w-1 h-6 bg-violet-400 rounded-full" />
+            <div className="w-1 h-6 bg-emerald-400 rounded-full" />
             <h2 className="text-lg font-bold text-gray-800">
               3. Common Food-Drug Interaction Problems
             </h2>
@@ -230,9 +230,9 @@ export default function DrugAllergyPage() {
             {COMMON_PROBLEMS.map(({ point, detail }, i) => (
               <div
                 key={point}
-                className="p-4 bg-gray-50 rounded-2xl border-l-4 border-violet-300"
+                className="p-4 bg-gray-50 rounded-2xl border-l-4 border-emerald-300"
               >
-                <h3 className="font-bold text-violet-700 text-sm mb-1">
+                <h3 className="font-bold text-emerald-700 text-sm mb-1">
                   {String.fromCharCode(97 + i)}. {point}
                 </h3>
                 <p className="text-gray-600 text-xs leading-relaxed">

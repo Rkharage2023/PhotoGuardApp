@@ -16,14 +16,14 @@ const ROLES = [
     label: "User",
     Icon: User,
     desc: "Get personalized skin assessments",
-    color: "violet",
+    color: "teal",
   },
   {
     id: "pharmacist",
     label: "Pharmacist",
     Icon: Pill,
     desc: "Manage medications and consultations",
-    color: "blue",
+    color: "cyan",
   },
   {
     id: "dermatologist",
@@ -35,19 +35,19 @@ const ROLES = [
 ];
 
 const C = {
-  violet: {
-    border: "border-violet-400",
-    bg: "bg-violet-50",
-    text: "text-violet-600",
-    dot: "bg-violet-500",
-    ring: "ring-violet-200",
+  teal: {
+    border: "border-teal-400",
+    bg: "bg-teal-50",
+    text: "text-teal-600",
+    dot: "bg-teal-500",
+    ring: "ring-teal-200",
   },
-  blue: {
-    border: "border-blue-400",
-    bg: "bg-blue-50",
-    text: "text-blue-600",
-    dot: "bg-blue-500",
-    ring: "ring-blue-200",
+  cyan: {
+    border: "border-cyan-400",
+    bg: "bg-cyan-50",
+    text: "text-cyan-600",
+    dot: "bg-cyan-500",
+    ring: "ring-cyan-200",
   },
   emerald: {
     border: "border-emerald-400",
@@ -84,7 +84,7 @@ export default function LoginPage({ onLogin }) {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700
+      className="min-h-screen bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700
                     flex items-center justify-center p-4 relative overflow-hidden"
     >
       <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
@@ -100,7 +100,7 @@ export default function LoginPage({ onLogin }) {
           <div className="text-center mb-8">
             <div
               className="inline-flex items-center justify-center w-16 h-16 rounded-2xl
-                            bg-gradient-to-br from-violet-500 to-purple-700 mb-4 shadow-lg"
+                            bg-gradient-to-br from-emerald-500 to-teal-700 mb-4 shadow-lg"
             >
               <Stethoscope size={32} className="text-white" />
             </div>
@@ -179,7 +179,7 @@ export default function LoginPage({ onLogin }) {
                   }}
                   placeholder="e.g. 9876543210"
                   className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-2xl text-sm
-                             focus:outline-none focus:border-violet-400 transition-colors"
+                             focus:outline-none focus:border-emerald-400 transition-colors"
                 />
               </div>
               {error && (
@@ -193,9 +193,9 @@ export default function LoginPage({ onLogin }) {
               type="submit"
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 py-3.5
-                         bg-gradient-to-r from-violet-500 to-purple-600 text-white
+                         bg-gradient-to-r from-emerald-500 to-teal-600 text-white
                          rounded-2xl font-semibold text-sm shadow-lg
-                         hover:shadow-violet-200 hover:-translate-y-0.5
+                         hover:shadow-emerald-200 hover:-translate-y-0.5
                          disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0
                          transition-all duration-200"
             >

@@ -10,6 +10,7 @@ import ResultPage from "./pages/ResultPage";
 import VideosPage from "./pages/VideosPage";
 import DrugAllergyPage from "./pages/DrugAllergyPage";
 import { authAPI } from "./services/api";
+import ChatbotWidget from "./components/ChatbotWidget";
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(
@@ -19,9 +20,29 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("home");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [userRole, setUserRole] = useState("user");
-  const [quizAnswers, setQuizAnswers] = useState([]);
+  const [quizAnswers, setQuizAnswers] = useState({
+    part1Answers: [],
+    part1Images: [],
+    part2Answers: [],
+    part2Images: [],
+  });
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [profileCompleted, setProfileCompleted] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("theme") || "light";
+  });
+
+  /* ── Sync Theme with HTML Class list ── */
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [theme]);
 
   /* ── Restore session on mount ── */
   useEffect(() => {
@@ -33,11 +54,15 @@ export default function App() {
     if (token && phone) {
       authAPI
         .getMe()
-        .then(() => {
+        .then(({ user }) => {
           setPhoneNumber(phone);
           setUserRole(role || "user");
+          setProfileCompleted(user.profileCompleted || false);
           setIsAuth(true);
           setPage("main");
+          if (!user.profileCompleted) {
+            setActiveTab("profile");
+          }
         })
         .catch(() => {
           // Token expired — clear everything
@@ -61,9 +86,14 @@ export default function App() {
     localStorage.setItem("userRole", role);
     setPhoneNumber(phone);
     setUserRole(role);
+    setProfileCompleted(data.user.profileCompleted || false);
     setIsAuth(true);
     setPage("main");
-    setActiveTab("home");
+    if (!data.user.profileCompleted) {
+      setActiveTab("profile");
+    } else {
+      setActiveTab("home");
+    }
   };
 
   const handleLogout = () => {
@@ -79,6 +109,11 @@ export default function App() {
   };
 
   const handleTabChange = (tab) => {
+    if (!profileCompleted && tab !== "profile") {
+      alert("Please complete your profile details first to unlock navigation features.");
+      setActiveTab("profile");
+      return;
+    }
     setActiveTab(tab);
     setPage("main");
   };
@@ -91,7 +126,7 @@ export default function App() {
     return (
       <div
         className="min-h-screen flex items-center justify-center
-                      bg-gradient-to-br from-violet-600 to-purple-700"
+                      bg-gradient-to-br from-emerald-600 to-teal-700"
       >
         <div className="text-center">
           <div
@@ -129,7 +164,12 @@ export default function App() {
       <ResultPage
         quizAnswers={quizAnswers}
         onRetake={() => {
-          setQuizAnswers([]);
+          setQuizAnswers({
+            part1Answers: [],
+            part1Images: [],
+            part2Answers: [],
+            part2Images: [],
+          });
           setPage("quiz");
         }}
         onHome={() => {
@@ -149,7 +189,12 @@ export default function App() {
             userRole={userRole}
             phoneNumber={phoneNumber}
             onStartQuiz={() => {
-              setQuizAnswers([]);
+              setQuizAnswers({
+                part1Answers: [],
+                part1Images: [],
+                part2Answers: [],
+                part2Images: [],
+              });
               setPage("quiz");
             }}
           />
@@ -162,6 +207,7 @@ export default function App() {
             phoneNumber={phoneNumber}
             userRole={userRole}
             onLogout={handleLogout}
+            onProfileComplete={() => setProfileCompleted(true)}
           />
         );
       case "drug-allergy":
@@ -172,7 +218,12 @@ export default function App() {
             userRole={userRole}
             phoneNumber={phoneNumber}
             onStartQuiz={() => {
-              setQuizAnswers([]);
+              setQuizAnswers({
+                part1Answers: [],
+                part1Images: [],
+                part2Answers: [],
+                part2Images: [],
+              });
               setPage("quiz");
             }}
           />
@@ -181,18 +232,22 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100/50 to-emerald-50/30 dark:from-slate-950 dark:via-slate-900/55 dark:to-emerald-950/20 transition-colors duration-300">
       <Navbar
         activeTab={activeTab}
         onTabChange={handleTabChange}
         phoneNumber={phoneNumber}
         userRole={userRole}
+        profileCompleted={profileCompleted}
+        theme={theme}
+        onToggleTheme={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
       />
       <main className="pt-20">
         <AnimatePresence mode="wait">
           <div key={activeTab}>{renderTab()}</div>
         </AnimatePresence>
       </main>
+      <ChatbotWidget />
     </div>
   );
 }

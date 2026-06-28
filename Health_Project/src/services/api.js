@@ -3,7 +3,6 @@ import axios from "axios";
 /* ── Base instance ── */
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
-  timeout: 10000,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -81,9 +80,9 @@ export const doctorAPI = {
 export const quizAPI = {
   /**
    * Save completed quiz answers to the backend
-   * @param {boolean[]} answers
+   * @param {object} payload
    */
-  save: (answers) => api.post("/quiz/save", { answers }).then((r) => r.data),
+  save: (payload) => api.post("/quiz/save", payload).then((r) => r.data),
 
   /** Get past quiz results for the logged-in user */
   history: () => api.get("/quiz/history").then((r) => r.data),

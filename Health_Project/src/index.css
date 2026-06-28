@@ -43,6 +43,99 @@
     background-color: #a78bfa;
     color: white;
   }
+
+  html.dark body {
+    @apply bg-slate-950 text-slate-100;
+  }
+
+  html.dark ::-webkit-scrollbar-track {
+    background: #0f172a;
+  }
+
+  html.dark ::-webkit-scrollbar-thumb {
+    background: #2f3b4c;
+  }
+
+  html.dark ::-webkit-scrollbar-thumb:hover {
+    background: #364150;
+  }
+
+  /* White backgrounds translate to dark slate in dark mode */
+  html.dark .bg-white {
+    @apply bg-slate-900 border-slate-800 text-slate-100;
+  }
+
+  /* Light gray backgrounds translate to dark slate in dark mode */
+  html.dark .bg-gray-50 {
+    @apply bg-slate-900/60;
+  }
+
+  html.dark .bg-gray-100 {
+    @apply bg-slate-800;
+  }
+
+  html.dark .bg-teal-50 {
+    @apply bg-teal-950/20 border-teal-900/40;
+  }
+
+  html.dark .bg-emerald-50 {
+    @apply bg-emerald-950/30 border-emerald-900/40;
+  }
+
+  html.dark .bg-emerald-50\/60 {
+    @apply bg-emerald-950/20 border-emerald-900/30;
+  }
+
+  html.dark .bg-rose-50 {
+    @apply bg-rose-950/20 border-rose-900/40;
+  }
+
+  /* Border color overrides */
+  html.dark .border-gray-100 {
+    @apply border-slate-800/80;
+  }
+
+  html.dark .border-gray-200 {
+    @apply border-slate-700/60;
+  }
+
+  html.dark .border-teal-100 {
+    @apply border-teal-900/40;
+  }
+
+  html.dark .border-emerald-100 {
+    @apply border-emerald-900/40;
+  }
+
+  /* Text color overrides */
+  html.dark .text-gray-800 {
+    @apply text-slate-100;
+  }
+
+  html.dark .text-gray-700 {
+    @apply text-slate-200;
+  }
+
+  html.dark .text-gray-600 {
+    @apply text-slate-300;
+  }
+
+  html.dark .text-gray-500 {
+    @apply text-slate-400;
+  }
+
+  html.dark .text-gray-400 {
+    @apply text-slate-500;
+  }
+
+  /* Form controls */
+  html.dark input, html.dark select, html.dark textarea {
+    @apply bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:border-emerald-500;
+  }
+
+  html.dark .bg-slate-50 {
+    @apply bg-slate-950;
+  }
 }
 
 @layer utilities {

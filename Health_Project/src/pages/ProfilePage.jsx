@@ -11,11 +11,11 @@ import {
   CheckCircle,
   Loader,
 } from "lucide-react";
-import { userAPI } from "../services/api";
+import { userAPI, quizAPI } from "../services/api";
 
 const inputCls =
   "w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm " +
-  "focus:outline-none focus:border-violet-400 transition-colors bg-white";
+  "focus:outline-none focus:border-emerald-400 transition-colors bg-white";
 
 const GENDER_MAP = {
   male: "👨 Male",
@@ -42,7 +42,7 @@ function Toast({ message, onDone }) {
   );
 }
 
-export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
+export default function ProfilePage({ phoneNumber, userRole, onLogout, onProfileComplete }) {
   const [editing, setEditing] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -55,6 +55,92 @@ export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
     phone: phoneNumber || "",
   });
   const [errors, setErrors] = useState({});
+  const [history, setHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+
+  useEffect(() => {
+    quizAPI
+      .history()
+      .then(({ results }) => {
+        setHistory(results || []);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch assessment history:", err);
+      })
+      .finally(() => {
+        setLoadingHistory(false);
+      });
+  }, []);
+
+  const [permStorage, setPermStorage] = useState(() => {
+    return localStorage.getItem("consent_storage") !== "false";
+  });
+  const [permNotification, setPermNotification] = useState(() => {
+    if ("Notification" in window) {
+      return Notification.permission === "granted";
+    }
+    return false;
+  });
+  const [permCamera, setPermCamera] = useState(() => {
+    return localStorage.getItem("consent_camera") === "true";
+  });
+  const [permMessaging, setPermMessaging] = useState(() => {
+    return localStorage.getItem("consent_messaging") !== "false";
+  });
+
+  const toggleStorage = () => {
+    const val = !permStorage;
+    setPermStorage(val);
+    localStorage.setItem("consent_storage", val ? "true" : "false");
+    if (!val) {
+      localStorage.removeItem("userProfile");
+      localStorage.removeItem("profileCompleted");
+    } else {
+      localStorage.setItem("userProfile", JSON.stringify(profile));
+      localStorage.setItem("profileCompleted", "true");
+    }
+  };
+
+  const toggleNotification = async () => {
+    if (permNotification) {
+      setPermNotification(false);
+      localStorage.setItem("consent_notification", "false");
+    } else {
+      if ("Notification" in window) {
+        const res = await Notification.requestPermission();
+        if (res === "granted") {
+          setPermNotification(true);
+          localStorage.setItem("consent_notification", "true");
+        } else {
+          alert("Notification permission was denied by the browser.");
+        }
+      } else {
+        alert("Desktop notifications are not supported by your browser.");
+      }
+    }
+  };
+
+  const toggleCamera = async () => {
+    if (permCamera) {
+      setPermCamera(false);
+      localStorage.setItem("consent_camera", "false");
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream.getTracks().forEach((track) => track.stop());
+        setPermCamera(true);
+        localStorage.setItem("consent_camera", "true");
+      } catch (err) {
+        alert("Camera permission denied or camera device not found.");
+      }
+    }
+  };
+
+  const toggleMessaging = () => {
+    const val = !permMessaging;
+    setPermMessaging(val);
+    localStorage.setItem("consent_messaging", val ? "true" : "false");
+  };
 
   /* Load profile — try backend first, fall back to localStorage */
   useEffect(() => {
@@ -114,6 +200,7 @@ export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
       setSubmitted(true);
       setEditing(false);
       setToast("Profile saved successfully!");
+      if (onProfileComplete) onProfileComplete();
     } catch {
       // Save locally even if backend is down
       localStorage.setItem("userProfile", JSON.stringify(profile));
@@ -121,6 +208,7 @@ export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
       setSubmitted(true);
       setEditing(false);
       setToast("Saved locally!");
+      if (onProfileComplete) onProfileComplete();
     } finally {
       setSaving(false);
     }
@@ -139,7 +227,7 @@ export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
       onClick={handleSave}
       disabled={saving}
       className={`flex items-center justify-center gap-2 py-3 px-6
-                  bg-gradient-to-r from-violet-500 to-purple-600 text-white
+                  bg-gradient-to-r from-emerald-500 to-teal-500 text-white
                   rounded-xl font-semibold text-sm hover:shadow-lg hover:-translate-y-0.5
                   disabled:opacity-70 disabled:cursor-not-allowed transition-all
                   ${fullWidth ? "w-full" : ""}`}
@@ -159,7 +247,7 @@ export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
   /* ─── Mandatory form ─── */
   if (!submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 to-blue-50 py-8 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100/50 to-emerald-50/30 py-8 px-4">
         <div className="max-w-xl mx-auto space-y-6">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -274,7 +362,7 @@ export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
               </div>
               <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-violet-500 to-emerald-500 rounded-full"
+                  className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${completion}%` }}
                   transition={{ duration: 0.5 }}
@@ -309,7 +397,7 @@ export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
 
   /* ─── Completed view ─── */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-blue-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100/50 to-emerald-50/30 py-8 px-4">
       <div className="max-w-2xl mx-auto space-y-5">
         {/* Header */}
         <motion.div
@@ -318,7 +406,7 @@ export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
           className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex items-center gap-5"
         >
           <div
-            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600
+            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600
                           flex items-center justify-center flex-shrink-0"
           >
             <User size={32} className="text-white" />
@@ -329,7 +417,7 @@ export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
             </h1>
             <p className="text-gray-500 text-sm mt-0.5">
               Profile complete ·{" "}
-              <span className="capitalize font-medium text-violet-600">
+              <span className="capitalize font-medium text-emerald-600">
                 {userRole}
               </span>
             </p>
@@ -337,9 +425,9 @@ export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
           {!editing && (
             <button
               onClick={() => setEditing(true)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-600
-                         border border-blue-100 rounded-xl text-sm font-semibold
-                         hover:bg-blue-100 transition-colors flex-shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-600
+                         border border-emerald-100 rounded-xl text-sm font-semibold
+                         hover:bg-emerald-100 transition-colors flex-shrink-0"
             >
               <Edit size={15} /> Edit
             </button>
@@ -468,6 +556,172 @@ export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
           </p>
         </motion.div>
 
+        {/* Device Access & Permissions Consent */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.22 }}
+          className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100"
+        >
+          <h3 className="font-bold text-gray-800 mb-2">Device Access & Permissions</h3>
+          <p className="text-xs text-gray-400 mb-4 leading-relaxed">
+            Manage browser features and device accessibility options for PhotoGuard services.
+          </p>
+          <div className="space-y-3">
+            {[
+              {
+                id: "storage",
+                name: "💾 Offline Storage Consent",
+                desc: "Allows caching your profile details, diagnostic scores, and assessment logs locally.",
+                checked: permStorage,
+                onChange: toggleStorage,
+              },
+              {
+                id: "notifications",
+                name: "🔔 Symptom Check-in Notifications",
+                desc: "Allows scheduling push notifications to remind you to log skin status.",
+                checked: permNotification,
+                onChange: toggleNotification,
+              },
+              {
+                id: "camera",
+                name: "📸 Camera & Photo Access",
+                desc: "Allows uploading and analyzing images of affected skin areas.",
+                checked: permCamera,
+                onChange: toggleCamera,
+              },
+              {
+                id: "messaging",
+                name: "💬 Medical Doctor Messaging",
+                desc: "Allows generating SMS pre-fills to message alliance dermatologists directly.",
+                checked: permMessaging,
+                onChange: toggleMessaging,
+              },
+            ].map((perm) => (
+              <div key={perm.id} className="flex items-start justify-between gap-4 p-3 bg-gray-50 rounded-2xl border border-gray-100/50">
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-700 text-sm">{perm.name}</p>
+                  <p className="text-gray-400 text-xs mt-0.5 leading-relaxed">{perm.desc}</p>
+                </div>
+                <button
+                  onClick={perm.onChange}
+                  className={`w-11 h-6 rounded-full flex-shrink-0 transition-colors relative focus:outline-none ${
+                    perm.checked ? "bg-emerald-500" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                      perm.checked ? "translate-x-5" : ""
+                    }`}
+                  />
+                </button>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Assessment History */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.24 }}
+          className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100"
+        >
+          <h3 className="font-bold text-gray-800 mb-2">📝 Assessment History</h3>
+          <p className="text-xs text-gray-400 mb-4 leading-relaxed">
+            Review your past skin checks, computed conditions, and recovery photos.
+          </p>
+
+          {loadingHistory ? (
+            <div className="flex justify-center py-6">
+              <Loader className="animate-spin text-emerald-500" size={24} />
+            </div>
+          ) : history.length === 0 ? (
+            <div className="text-center py-6 border-2 border-dashed border-gray-100 rounded-2xl bg-gray-50/50">
+              <p className="text-sm font-semibold text-gray-500">No assessments found</p>
+              <p className="text-xs text-gray-400 mt-1 max-w-xs mx-auto leading-relaxed">
+                Take your first skin check-in test to start logging history and tracking improvements.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1 no-scrollbar">
+              {history.map((record) => {
+                const dateStr = new Date(record.createdAt).toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+                
+                const sortedProbs = [...(record.probabilities || [])].sort(
+                  (a, b) => b.percentage - a.percentage
+                );
+
+                const topCond = sortedProbs[0];
+                const secondCond = sortedProbs[1];
+
+                return (
+                  <div
+                    key={record._id}
+                    className="p-4 bg-gray-50 rounded-2xl border border-gray-100/50 flex flex-col gap-3"
+                  >
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                          {dateStr}
+                        </p>
+                        <p className="text-sm font-bold text-gray-800 mt-0.5">
+                          {topCond ? topCond.label : "Assessment Result"}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full whitespace-nowrap">
+                        {record.stageLabel || "Calculated"}
+                      </span>
+                    </div>
+
+                    {/* Probabilities breakdown short list */}
+                    {sortedProbs.length > 0 && (
+                      <div className="flex flex-wrap gap-2 text-xs font-semibold text-gray-500">
+                        {topCond && (
+                          <span className="bg-white border border-gray-100 px-2 py-0.5 rounded-lg text-emerald-700">
+                            {topCond.label} ({topCond.percentage}%)
+                          </span>
+                        )}
+                        {secondCond && (
+                          <span className="bg-white border border-gray-100 px-2 py-0.5 rounded-lg">
+                            {secondCond.label} ({secondCond.percentage}%)
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Thumbnail previews of uploaded photos */}
+                    {(record.part1Images?.length > 0 || record.part2Images?.length > 0) && (
+                      <div className="flex items-center gap-1.5 mt-1">
+                        {[...(record.part1Images || []), ...(record.part2Images || [])].map(
+                          (base64, imgIdx) => (
+                            <div
+                              key={imgIdx}
+                              className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0 bg-white"
+                            >
+                              <img
+                                src={base64}
+                                alt="Assessment"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </motion.div>
+
         {/* Quick Actions */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -494,7 +748,7 @@ export default function ProfilePage({ phoneNumber, userRole, onLogout }) {
                 emoji: "🟣",
                 title: "Chat With Us",
                 desc: "24/7 support",
-                color: "border-violet-300",
+                color: "border-teal-300",
               },
             ].map(({ emoji, title, desc, color }) => (
               <div

@@ -8,14 +8,23 @@ const quizResultSchema = new mongoose.Schema(
       required: true,
     },
     phone: { type: String, required: true },
-    answers: [{ type: Boolean }], // array of true/false per question
-    yesCount: { type: Number, required: true },
+    answers: [{ type: Boolean }], // Keep for backwards compatibility
+    part1Answers: [{ type: Boolean }],
+    part2Answers: [{ type: Boolean }],
+    part1Images: [{ type: String }], // Base64 strings
+    part2Images: [{ type: String }], // Base64 strings
+    probabilities: [
+      {
+        id: { type: String },
+        label: { type: String },
+        percentage: { type: Number },
+      }
+    ],
+    yesCount: { type: Number },
     stage: {
       type: String,
-      enum: ["mild", "moderate", "severe", "critical"],
-      required: true,
     },
-    stageLabel: { type: String }, // human-readable label saved for display
+    stageLabel: { type: String },
   },
   { timestamps: true },
 );
